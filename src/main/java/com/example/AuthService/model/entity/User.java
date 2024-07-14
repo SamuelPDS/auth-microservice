@@ -1,5 +1,6 @@
 package com.example.AuthService.model.entity;
 
+import com.example.AuthService.model.dto.UserDTO;
 import com.example.AuthService.util.UserRole;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -30,8 +31,15 @@ public class User implements UserDetails {
     @Column
     private String password;
 
-    @Column
+    @Column(length = 32)
     private UserRole role;
+
+
+    public User(String login, String password, UserRole role) {
+        this.login = login;
+        this.password = password;
+        this.role = role;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
