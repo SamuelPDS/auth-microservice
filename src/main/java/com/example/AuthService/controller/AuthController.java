@@ -4,6 +4,7 @@ import com.example.AuthService.model.dto.LoginDTO;
 import com.example.AuthService.model.dto.UserDTO;
 import com.example.AuthService.model.entity.User;
 import com.example.AuthService.services.AuthService;
+import com.example.AuthService.services.TokenService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +25,9 @@ public class AuthController {
     @Autowired
     private AuthService authService;
 
+    @Autowired
+    private TokenService tokenService;
+
     @PostMapping("/register")
     public ResponseEntity<?>  createUser(@RequestBody @Valid UserDTO dto) {
         if (this.authService.getUserByLogin(dto.login()) != null) return ResponseEntity.badRequest().build();
@@ -39,7 +43,7 @@ public class AuthController {
     public ResponseEntity<?> login(@RequestBody @Valid LoginDTO dto) {
         var usernamePassword = new UsernamePasswordAuthenticationToken(dto.login(), dto.password());
         var auth = this.authenticationManager.authenticate(usernamePassword);
-
+        var token = tokenService.generateToken((User) auth.getPrincipal());
         return ResponseEntity.ok().build();
     }
 }
