@@ -1,8 +1,9 @@
 package com.example.AuthService.util;
 
 public enum UserRole {
-    ADMIN("admin"),
-    USER("user");
+    ADMIN("ADMIN"),
+    MANAGER("MANAGER"),
+    INSPECTOR("INSPECTOR");
 
     final String role;
 
