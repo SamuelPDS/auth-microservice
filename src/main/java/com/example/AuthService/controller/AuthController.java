@@ -1,6 +1,7 @@
 package com.example.AuthService.controller;
 
 import com.example.AuthService.model.dto.LoginDTO;
+import com.example.AuthService.model.dto.TokenDTO;
 import com.example.AuthService.model.dto.UserDTO;
 import com.example.AuthService.model.entity.User;
 import com.example.AuthService.services.AuthService;
@@ -29,21 +30,21 @@ public class AuthController {
     private TokenService tokenService;
 
     @PostMapping("/register")
-    public ResponseEntity<?>  createUser(@RequestBody @Valid UserDTO dto) {
-        if (this.authService.getUserByLogin(dto.login()) != null) return ResponseEntity.badRequest().build();
+    public ResponseEntity<User>  createUser(@RequestBody @Valid UserDTO dto) {
+        if (this.authService.getUserByLogin(dto.login()) != null) return ResponseEntity
+                .badRequest().build();
 
         String bcryptPassword = new BCryptPasswordEncoder().encode(dto.password());
         var user = new User(dto.login(), bcryptPassword, dto.role());
         this.authService.createUser(user);
         return ResponseEntity.ok().body(user);
-
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody @Valid LoginDTO dto) {
+    public ResponseEntity<TokenDTO> login(@RequestBody @Valid LoginDTO dto) {
         var usernamePassword = new UsernamePasswordAuthenticationToken(dto.login(), dto.password());
         var auth = this.authenticationManager.authenticate(usernamePassword);
         var token = tokenService.generateToken((User) auth.getPrincipal());
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body(new TokenDTO(token));
     }
 }
