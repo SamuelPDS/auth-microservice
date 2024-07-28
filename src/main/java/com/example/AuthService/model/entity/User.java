@@ -2,6 +2,7 @@ package com.example.AuthService.model.entity;
 
 import com.example.AuthService.model.dto.UserDTO;
 import com.example.AuthService.util.UserRole;
+import com.example.AuthService.util.UserStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -31,14 +32,21 @@ public class User implements UserDetails {
     @Column
     private String password;
 
+    @Enumerated(EnumType.STRING)
     @Column(length = 32)
     private UserRole role;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 24)
+    private UserStatus status;
 
 
     public User(String login, String password, UserRole role) {
         this.login = login;
         this.password = password;
+        //TODO Definir como a role será criada
         this.role = role;
+        status = UserStatus.ENABLED;
     }
 
     @Override
@@ -70,6 +78,6 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return this.status == UserStatus.ENABLED;
     }
 }
