@@ -6,8 +6,13 @@ import com.example.AuthService.model.dto.UserDTO;
 import com.example.AuthService.model.entity.User;
 import com.example.AuthService.services.AuthService;
 import com.example.AuthService.services.TokenService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -16,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
+@Tag(name = "AuthService")
 public class AuthController {
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -26,17 +32,34 @@ public class AuthController {
     @Autowired
     private TokenService tokenService;
 
-    @PostMapping("/register")
-    public ResponseEntity<User>  createUser(@RequestBody @Valid UserDTO dto) {
-        if (this.authService.getUserByLogin(dto.login()) != null) return ResponseEntity
-                .badRequest().build();
+    @Operation(summary = "Cria o usuário", method = "POST")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BadRequest"),
 
-        String bcryptPassword = new BCryptPasswordEncoder().encode(dto.password());
-        var user = new User(dto.login(), bcryptPassword, dto.role());
-        this.authService.createUser(user);
-        return ResponseEntity.ok().body(user);
+    })
+    @PostMapping(value = "/register")
+    public ResponseEntity<User>  createUser(@RequestBody @Valid UserDTO dto) {
+        try {
+            String bcryptPassword = new BCryptPasswordEncoder().encode(dto.password());
+            var user = new User(dto.login(), bcryptPassword, dto.role());
+            this.authService.createUser(user);
+            return ResponseEntity.ok().body(user);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+//
+//
+//        if (this.authService.getUserByLogin(dto.login()) != null) return ResponseEntity
+//                .badRequest().build();
+
     }
 
+    @Operation(summary = "Verifica o login", method = "POST")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "403", description = "forbidden")
+    })
     @PostMapping("/login")
     public ResponseEntity<TokenDTO> login(@RequestBody @Valid LoginDTO dto) {
         var usernamePassword = new UsernamePasswordAuthenticationToken(dto.login(), dto.password());
