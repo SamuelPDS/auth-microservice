@@ -5,6 +5,7 @@ import com.example.AuthService.model.dto.TokenDTO;
 import com.example.AuthService.model.dto.UserDTO;
 import com.example.AuthService.model.entity.User;
 import com.example.AuthService.services.AuthService;
+import com.example.AuthService.services.GotenbergService;
 import com.example.AuthService.services.TokenService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -19,6 +20,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+
 @RestController
 @RequestMapping("/auth")
 @Tag(name = "AuthService")
@@ -31,6 +34,10 @@ public class AuthController {
 
     @Autowired
     private TokenService tokenService;
+
+    @Autowired
+    GotenbergService gotenbergService;
+
 
     @Operation(summary = "Cria o usuário", method = "POST")
     @ApiResponses(value = {
@@ -66,5 +73,10 @@ public class AuthController {
         var auth = this.authenticationManager.authenticate(usernamePassword);
         var token = tokenService.generateToken((User) auth.getPrincipal());
         return ResponseEntity.ok().body(new TokenDTO(token));
+    }
+
+    @GetMapping("teste")
+    private void testeDocx() throws IOException {
+        gotenbergService.salvarPdf("C:\\Users\\User\\Downloads\\teste.docx", "C:\\Users\\User\\Downloads\\teste.pdf");
     }
 }
